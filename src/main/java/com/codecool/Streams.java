@@ -2,6 +2,8 @@ package com.codecool;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.List;
 import java.util.function.Supplier;
@@ -72,11 +74,25 @@ public class Streams {
 
         Supplier<Integer> fibSupp = new Fibonacci();
         Stream<Integer> s6 = Stream.generate(fibSupp);
+        LongStream s7 = LongStream.generate(new AtomicFibonacci());
+        IntStream s8 = Stream.iterate(new int[]{ 0, 1 }, fib -> new int[]{ fib[1], fib[0] + fib[1] })
+                             .mapToInt(fib -> fib[0]);
 
         /*
          * Some tests.
          */
-        System.out.println(Arrays.toString(s5.toArray()));
-        System.out.println(Arrays.toString(s6.limit(20).toArray()));
+        //System.out.println(Arrays.toString(s5.toArray()));
+
+        long start = System.currentTimeMillis();
+        System.out.println(Arrays.toString(s6.limit(20000).toArray()));
+        System.out.println(System.currentTimeMillis() - start);
+
+        start = System.currentTimeMillis();
+        System.out.println(Arrays.toString(s7.limit(20000).toArray()));
+        System.out.println(System.currentTimeMillis() - start);
+
+        start = System.currentTimeMillis();
+        System.out.println(Arrays.toString(s8.limit(20000).toArray()));
+        System.out.println(System.currentTimeMillis() - start);
     }
 }
