@@ -1,39 +1,47 @@
 package com.codecool;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.LongSupplier;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class ThreadDemo {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         Fibonacci fib = new Fibonacci();
 
         ExecutorService executor = Executors.newFixedThreadPool(5);
-        for (int i = 0; i < 50; i++) {
-            Future<Integer> future = executor.submit(fib::get);
 
-            try {
-                System.out.println("Fib: " + future.get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+        List<Future<BigInteger>> futures = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            futures.add(executor.submit(fib::get));
         }
 
-        LongSupplier fib2 = new AtomicFibonacci();
+        System.out.println("Fibonacci:");
+        printFutures(futures);
 
-        for (int i = 0; i < 50; i++) {
-            Future<Long> future = executor.submit(fib2::getAsLong);
+        Fibonacci fib2 = new Fibonacci();
 
-            try {
-                System.out.println("Atomic fib: " + future.get());
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
+        List<Future<BigInteger>> futures2 = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            futures2.add(executor.submit(fib2::atomicGet));
         }
+
+        System.out.println("Atomic fibonacci:");
+        printFutures(futures2);
 
         executor.shutdown();
+    }
+
+    private static void printFutures(List<Future<BigInteger>> futures) {
+        futures.stream()
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                    return new BigInteger("0");
+                }).sorted().forEach(System.out::println);
     }
 }

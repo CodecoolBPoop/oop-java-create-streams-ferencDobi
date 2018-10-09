@@ -1,16 +1,35 @@
 package com.codecool;
 
+import java.math.BigInteger;
 import java.util.function.Supplier;
 
-public class Fibonacci implements Supplier<Integer> {
-    private static int current = 0;
-    private static int next = 1;
+public class Fibonacci implements Supplier<BigInteger> {
+    private BigInteger current = new BigInteger("0");
+    private BigInteger next = new BigInteger("1");
 
     @Override
-    public Integer get() {
-        Integer value = current;
+    public BigInteger get() {
+        BigInteger value = current;
+        sleep();
         current = next;
-        next += value;
+        sleep();
+        next = next.add(value);
+        sleep();
         return value;
+    }
+
+    public BigInteger atomicGet() {
+        synchronized (this) {
+            return get();
+        }
+    }
+
+
+    private void sleep() {
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
